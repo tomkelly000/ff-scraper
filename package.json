@@ -1,0 +1,16 @@
+{
+	"name" : "ff-scraper",
+	"description" : "a scraper for ESPN's fantasy football projections for the 2013 season",
+	"keywords" : [
+		"fantasy",
+		"football",
+		"2013",
+		"season",
+		"espn"
+	],
+	"author" : {
+		"name" : "Tom Kelly",
+		"url" : "http://www.princeton.edu/~tjkelly"
+	},
+	"license" : "MIT"
+}
