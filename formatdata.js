@@ -5,6 +5,27 @@ var d3 = require('d3')
 var fs = require('fs')
 
 fs.readFile('table.csv', 'utf-8', function(err, csv) {
+  fs.readFile('teams.json', function(err, json) {
+  	var teams =  JSON.parse(json).sports[0].leagues[0].teams;
+  	function convertAbbreviation(player, cb) {
+  		var teamname = player.TEAM;
+  		var changed = false;
+  		teams.forEach(function(team) {
+  			if (team.name === teamname) {
+  				player.TEAM = team.abbreviation.toUpperCase();
+  				cb(player);
+  				changed = true;
+  			}
+  		})
+  		if (!changed) {
+  			player.TEAM = teamname.toUpperCase();
+  			cb(player)
+  		}
+  	}
+  	var colors = {};
+    teams.forEach(function(team) {
+    	colors[team.abbreviation] = '#' + team.color; // hex
+    })
 	var data = {
 			'name' : 'positions',
 			'children' : [
@@ -38,17 +59,22 @@ fs.readFile('table.csv', 'utf-8', function(err, csv) {
 		// synchronous function
 		var points = parseInt(player.PTS);
 		points = Math.max(points, 0); // negative values are screwing it up
-		var node = {
-			'name' : player.PLAYER,
-			'value' : points,
-			'stats' : player,
-		}
-		// make parent node values be some of children values
 
-		data.children[map(player.POS)].children.push(node);
+		convertAbbreviation(player, function(player) {
+			player.FILL = colors[player.TEAM];
+			var node = {
+				'name' : player.PLAYER,
+				'value' : points,
+				'stats' : player,
+			}
+			// make parent node values be some of children values
+
+			data.children[map(player.POS)].children.push(node);
+		})			
 	})
 
 	fs.writeFile('data.json', JSON.stringify(data, null, 4));
+  });
 })
 function map(position) {
 	switch (position) {
